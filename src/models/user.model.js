@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
-import Post from "./post.schema.js";
+import Post from "./post.model.js";
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [ true, "Name is required" ],
         minlength: [ 3, "Name must be at least 3 characters long" ],
         maxlength: [ 50, "Name must be at most 50 characters long" ],
+    },
+    profilePicture: {
+        type: String,
+        required: [ true, "Profile picture is required" ],
+        minlength: [ 3, "Profile picture must be at least 3 characters long" ],
+        maxlength: [ 50, "Profile picture must be at most 50 characters long" ],
     },
     email: {
         type: String,
