@@ -7,11 +7,14 @@ const userSchema = new mongoose.Schema({
         minlength: [ 3, "Name must be at least 3 characters long" ],
         maxlength: [ 50, "Name must be at most 50 characters long" ],
     },
-    profilePicture: {
+    username: {
         type: String,
-        required: [ true, "Profile picture is required" ],
-        minlength: [ 3, "Profile picture must be at least 3 characters long" ],
-        maxlength: [ 50, "Profile picture must be at most 50 characters long" ],
+        required: [ true, "Username is required" ],
+        unique: true,
+    },
+    avatar: {
+        type: String,
+        required: [ true, "Avatar is required" ],
     },
     email: {
         type: String,
@@ -29,7 +32,7 @@ const userSchema = new mongoose.Schema({
             ref: "Post",
         },
     ],
-});
+}, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);
 
