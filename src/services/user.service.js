@@ -2,9 +2,8 @@ import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import asyncHandler from "../utils/asyncHandler.util.js";
-import fs from "fs";
 import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -109,4 +108,26 @@ const logoutUser = async (userId) => {
     return { user, options };
 }
 
-export default { createUser, loginUser, logoutUser };
+const incomingRefreshToken = asyncHandler(async (refreshToken) => {
+  if (!refreshToken) {
+    throw new ApiError(401, "Unauthorized: No refresh token provided");
+  }
+  const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+  const user = await User.findById(decodedToken?._id);
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+  if (user.refreshToken !== refreshToken) {
+    throw new ApiError(401, "Refresh token is not matched");
+  }
+  const options = {
+    httpOnly: true,
+    secure: false,
+  }
+
+  const { accessToken, newRefreshToken } = await generateAccessTokenAndRefreshToken(user._id);
+
+  return { accessToken, newRefreshToken, options };
+});
+
+export  { createUser, loginUser, logoutUser, incomingRefreshToken };

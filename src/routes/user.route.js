@@ -1,15 +1,14 @@
 import { Router } from "express";
-import userController from "../controllers/user.controller.js";
+import { login, logout, registerUser, refreshAccessToken } from "../controllers/user.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/register").post(upload.fields([{ name: "avatar", maxCount: 1 }]), userController.registerUser);
-router.route("/login").post(userController.loginUser);
-
-//secured routes
-router.route("/logout").post(authenticateUser, userController.logoutUser);
+router.route("/register").post(upload.fields([{ name: "avatar", maxCount: 1 }]), registerUser);
+router.route("/login").post(login);
+router.route("/logout").post(authenticateUser, logout);
+router.route("/refresh-token").post(refreshAccessToken);
 
 
 
