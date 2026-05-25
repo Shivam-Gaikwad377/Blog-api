@@ -1,4 +1,4 @@
-import { createUser, logoutUser, loginUser, incomingRefreshToken } from "../services/user.service.js";
+import { createUser, logoutUser, loginUser, incomingRefreshToken, updatePassword } from "../services/user.service.js";
 import asyncHandler from "../utils/asyncHandler.util.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -29,9 +29,17 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     return res.status(200).cookie("refreshToken", newRefreshToken, options).cookie("accessToken", accessToken, options).json(new ApiResponse(200, { accessToken }, "Access token refreshed successfully"));
 });
 
+const changePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const { user_id } = req.user?._id;
+    const passwordChanged = await updatePassword(user_id, currentPassword, newPassword);
+    return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
 export {
     registerUser,
     login,
     logout,
-    refreshAccessToken
+    refreshAccessToken,
+    changePassword
 };

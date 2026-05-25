@@ -130,4 +130,25 @@ const incomingRefreshToken = asyncHandler(async (refreshToken) => {
   return { accessToken, newRefreshToken, options };
 });
 
-export  { createUser, loginUser, logoutUser, incomingRefreshToken };
+const updatePassword = async (userId, currentPassword, newPassword) => {
+    if (![currentPassword, newPassword].every((field) => field?.trim())) {
+        throw new ApiError(400, "Current password and new password are required");
+    }
+    if (currentPassword === newPassword) {
+        throw new ApiError(400, "New password must be different from current password");
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    const isCurrentPasswordCorrect = await user.isValidPassword(currentPassword);
+    if (!isCurrentPasswordCorrect) {
+        throw new ApiError(401, "Current password is incorrect");
+    }
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save({ validateBeforeSave: false });
+    return true;
+}
+
+export  { createUser, loginUser, logoutUser, incomingRefreshToken, updatePassword };
