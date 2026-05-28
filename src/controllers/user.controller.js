@@ -1,4 +1,4 @@
-import { createUser, logoutUser, loginUser, incomingRefreshToken, updatePassword } from "../services/user.service.js";
+import { createUser, logoutUser, loginUser, incomingRefreshToken, updatePassword, getCurrentUser, updateAccountDetails, updateUserAvatar  } from "../services/user.service.js";
 import asyncHandler from "../utils/asyncHandler.util.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -31,15 +31,40 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changePassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
-    const { user_id } = req.user?._id;
+    const user_id  = req.user.id;
     const passwordChanged = await updatePassword(user_id, currentPassword, newPassword);
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
 });
+
+const CurrentUser = asyncHandler(async (req, res) => {
+    const user = await getCurrentUser(req.user.id);
+    return res.status(200).json(new ApiResponse(200, user, "Current user retrieved successfully"));
+});
+
+const updateUser = asyncHandler(async (req, res) => {
+    const { name, email, username } = req.body;
+    const user = await updateAccountDetails(req.user.id, { name, email, username });
+    return res.status(200).json(new ApiResponse(200, user, "User updated successfully"));
+});
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.files?.avatar[0].path;
+    const user = await updateUserAvatar(req.user.id, avatarLocalPath);
+    return res.status(200).json(new ApiResponse(200, user, "User avatar updated successfully"));
+});
+
+
+
 
 export {
     registerUser,
     login,
     logout,
     refreshAccessToken,
-    changePassword
-};
+    changePassword,
+    CurrentUser,
+    updateUser,
+    updateAvatar
+}; 
+
+    

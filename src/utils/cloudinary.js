@@ -11,7 +11,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const uploadonCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath) => {
     try{
         if(!localFilePath) {
             throw new Error('No file path provided');
@@ -27,4 +27,15 @@ const uploadonCloudinary = async (localFilePath) => {
     }
 };
 
-export default uploadonCloudinary;
+const deleteFromCloudinary = async (publicId) => {
+    try {
+        const response = await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
+        console.log('File deleted successfully from Cloudinary', response);
+        return response;
+    } catch (error) {
+        console.error('Error deleting file from Cloudinary:', error);
+        return null;
+    }   
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };
